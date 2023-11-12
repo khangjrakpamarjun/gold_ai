@@ -1,0 +1,11 @@
+pi_data:
+  type: alchemy.utils.io.custom_sql_timescale_pandas_dataset.TimeScaleDBSqlQueryDataSet
+  sql: "select ${timestamp_column},${tag_column},${value_column} from data"
+
+raw_pi_data_ingested:
+  type: kedro.extras.datasets.pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.raw}/raw_pi_data_ingested.parquet"
+
+pi_data_ingested:
+  type: kedro.extras.datasets.pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.intermediate}/pi_data_ingested.parquet"

@@ -1,0 +1,1 @@
+{'aggregation_method': 'agg_method', 'offset': '7h30min', 'resampling_freq': '4h', 'label': 'right', 'closed': 'right', 'notnull_minima': 0.7}

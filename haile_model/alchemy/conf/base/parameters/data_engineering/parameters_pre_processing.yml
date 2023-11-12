@@ -1,0 +1,19 @@
+clean_data_columns:
+  replace_strings: {
+    "process plant": "",
+    "logsheet": "",
+    "(µm)": "",
+  }
+
+remove_outliers_merged_data: &remove_outliers
+  max_percent: 0.2 # max percent of data permissible to be removed for a column
+  outlier_strategy: outlier_cleaning_strategy # Column name in dict
+  data_source: data_source
+  derived_column: FALSE
+
+remove_outliers_derived_features:
+  <<: *remove_outliers
+  derived_column: TRUE
+
+
+# TODO: Refactor TRUE with True in new version of tag dict as well as code

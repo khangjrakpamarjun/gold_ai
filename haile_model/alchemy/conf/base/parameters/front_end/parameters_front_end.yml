@@ -1,0 +1,6 @@
+ui:
+  # Add multiple kpis in the key below to list its value in predictions table for overall kpis display on
+  # recommendations page of UI
+  target_kpi:
+    - 200_cv_001_weightometer
+    - sulphide_grade

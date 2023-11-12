@@ -1,0 +1,259 @@
+# TODO: Make catalog point to model_name to save all datasets in one iterations during refactoring
+##################################################################
+#               SAG POWER MODEL OUTPUTS
+##################################################################
+
+upstream.modeling.sag_power.trained_model:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.models}/sag_power/trained_model.pkl"
+  layer: train_model
+
+upstream.modeling.sag_power.feature_importance:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sag_power/feature_importance.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+upstream.modeling.sag_power.shap_feature_importance:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sag_power/shap_feature_importance.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+upstream.modeling.sag_power.train_data_predictions:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sag_power/train_data_predictions.csv"
+  save_args:
+    index: True
+    date_format: "%Y-%m-%d %H:%M:%S"
+    decimal: .
+  layer: train_model
+
+upstream.modeling.sag_power.train_metrics:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sag_power/train_metrics.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+upstream.modeling.sag_power.test_data_predictions:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sag_power/test_data_predictions.csv"
+  save_args:
+    index: True
+    date_format: "%Y-%m-%d %H:%M:%S"
+    decimal: .
+  layer: train_model
+
+upstream.modeling.sag_power.test_metrics:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sag_power/test_metrics.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+##################################################################
+#               SULPHIDE GRADE MODEL OUTPUTS
+##################################################################
+
+upstream.modeling.sulphide_grade.trained_model:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.models}/sulphide_grade/trained_model.pkl"
+  layer: train_model
+
+upstream.modeling.sulphide_grade.feature_importance:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sulphide_grade/feature_importance.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+upstream.modeling.sulphide_grade.shap_feature_importance:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sulphide_grade/shap_feature_importance.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+upstream.modeling.sulphide_grade.train_data_predictions:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sulphide_grade/train_set_predictions.csv"
+  save_args:
+    index: True
+    date_format: "%Y-%m-%d %H:%M:%S"
+    decimal: .
+  layer: train_model
+
+upstream.modeling.sulphide_grade.train_metrics:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sulphide_grade/train_metrics.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+upstream.modeling.sulphide_grade.test_data_predictions:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sulphide_grade/test_data_predictions.csv"
+  save_args:
+    index: True
+    date_format: "%Y-%m-%d %H:%M:%S"
+    decimal: .
+  layer: train_model
+
+upstream.modeling.sulphide_grade.test_metrics:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/sulphide_grade/test_metrics.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+##################################################################
+#               MASS PULL MODEL OUTPUTS
+##################################################################
+
+upstream.modeling.mass_pull.trained_model:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.models}/mass_pull/trained_model.pkl"
+  layer: train_model
+
+upstream.modeling.mass_pull.feature_importance:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/mass_pull/feature_importance.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+upstream.modeling.mass_pull.shap_feature_importance:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/mass_pull/shap_feature_importance.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+upstream.modeling.mass_pull.train_data_predictions:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/mass_pull/train_data_predictions.csv"
+  save_args:
+    index: True
+    date_format: "%Y-%m-%d %H:%M:%S"
+    decimal: .
+  layer: train_model
+
+upstream.modeling.mass_pull.train_metrics:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/mass_pull/train_metrics.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+upstream.modeling.mass_pull.test_data_predictions:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/mass_pull/test_data_predictions.csv"
+  save_args:
+    index: True
+    date_format: "%Y-%m-%d %H:%M:%S"
+    decimal: .
+  layer: train_model
+
+upstream.modeling.mass_pull.test_metrics:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/mass_pull/test_metrics.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+###################################################################
+#               CIL RECOVERY MODEL OUTPUTS
+###################################################################
+downstream.modeling.cil_recovery.first_cluster_trained_model:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.models}/cil_recovery/first_cluster_trained_model.pkl"
+  layer: train_model
+
+downstream.modeling.cil_recovery.second_cluster_trained_models:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.models}/cil_recovery/second_cluster_trained_models.pkl"
+  layer: train_model
+
+downstream.modeling.cil_recovery.train_data_with_clusters:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/cil_recovery/train_data_with_clusters.csv"
+  layer: train_model
+
+downstream.modeling.cil_recovery.best_operating_mode_per_cluster:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/cil_recovery/best_operating_mode_per_cluster.pkl"
+  layer: train_model
+
+downstream.modeling.cil_recovery.train_data_all_tags:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/cil_recovery/train_data_all_tags.csv"
+  layer: train_model
+
+downstream.modeling.cil_recovery.model_features_first_level_cluster:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/cil_recovery/model_features_first_level_cluster.pkl"
+  layer: train_model
+
+downstream.modeling.cil_recovery.model_features_second_level_cluster:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/cil_recovery/model_features_second_level_cluster.pkl"
+  layer: train_model
+
+downstream.modeling.cil_recovery.model_features_second_level_cluster_dict:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/cil_recovery/model_features_second_level_cluster_dict.pkl"
+  layer: train_model
+
+downstream.modeling.cil_recovery.model_features:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/cil_recovery/model_features.pkl"
+  layer: train_model
+
+downstream.modeling.cil_recovery.all_operating_mode_per_cluster:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/cil_recovery/all_operating_mode_per_cluster.pkl"
+  layer: train_model
+
+downstream.modeling.cil_recovery.data_process_scaled:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.reporting}/cil_recovery/data_process_scaled.pkl"
+  layer: train_model
+
+downstream.modeling.cil_recovery.train_data_upstream_cluster_scaled:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.reporting}/cil_recovery/train_data_upstream_cluster_scaled.pkl"
+  layer: train_model
+
+##################################################################
+#               CIL RECOVERY REPORTING OUTPUTS
+##################################################################
+downstream.modeling.cil_recovery.ore_cluster_2d:
+  type: matplotlib.MatplotlibWriter
+  filepath: "${base_dir}/${folders.reporting}/cil_recovery/cil_recovery_ore_cluster_2d.jpeg"
+  layer: train_model
+  save_args:
+    format: jpeg
+
+downstream.modeling.cil_recovery.ore_cluster_3d:
+  type: matplotlib.MatplotlibWriter
+  filepath: "${base_dir}/${folders.reporting}/cil_recovery/cil_recovery_ore_cluster_3d.jpeg"
+  layer: train_model
+  save_args:
+    format: jpeg
+
+downstream.modeling.cil_recovery.ore_cluster_profile_train_data:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.reporting}/cil_recovery/cil_recovery_ore_cluster_profile_train_data.csv"
+  save_args:
+    index: True
+  layer: train_model
+
+downstream.modeling.cil_recovery.get_ore_cluster_box_plots:
+  type: matplotlib.MatplotlibWriter
+  filepath: "${base_dir}/${folders.reporting}/cil_recovery/cil_recovery_get_ore_cluster_box_plots.jpeg"
+  layer: train_model
+  save_args:
+    format: jpeg

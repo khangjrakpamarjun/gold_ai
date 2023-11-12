@@ -1,0 +1,167 @@
+##################################################################
+#                    UPSTREAM RECOMMENDATIONS
+##################################################################
+upstream.optimisation.opt_upstream.models_dict:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/models_dict.pkl"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.bounds_dict:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/bounds_dict.pkl"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.data_filtered_by_target:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/data_filtered_by_target.parquet"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.recommend_results:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/recommend_results.pkl"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.recommend_results_translated:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/optim_results_translated.pkl"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.optim_results:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/optim_results.pkl"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.cra_states:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/cra_states.pkl"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.cra_predictions:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/cra_predictions.pkl"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.cra_recommendations:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/cra_recommendations.pkl"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.cra_runs:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/cra_runs.pkl"
+  layer: optimization
+
+upstream.optimisation.opt_upstream.baseline_tph:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_upstream/baseline_tph.pkl"
+  layer: optimization
+
+##################################################################
+#               CIL RECOVERY MODEL RECOMMENDATIONS
+##################################################################
+downstream.optimisation.opt_downstream.recommendations_cfa:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/recommendations_cfa.csv"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.recommendations_live:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/recommendations_live.csv"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.recommendations_live_timestamp:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/recommendations_live_timestamp.csv"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.recommendations_downstream:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/recommendations_downstream.csv"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.predictions:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/prediction.csv"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.test_data_with_ore_clusters:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_with_ore_clusters.parquet"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.test_data_ore_tags_with_clusters:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_ore_tags_with_clusters.pkl"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.test_data_all_tags_with_clusters:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_all_tags_with_clusters.pkl"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.train_data_without_nulls:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/train_data_without_nulls.csv"
+  layer: model_input
+
+downstream.optimisation.opt_downstream.test_data_without_nulls:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_without_nulls.csv"
+  layer: model_input
+
+downstream.optimisation.opt_downstream.test_data_with_ore_clusters_with_om:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_with_ore_clusters_with_om.parquet"
+  layer: model_input
+
+downstream.optimisation.opt_downstream.df_aggregated:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/df_aggregated.parquet"
+  layer: train_model
+
+downstream.optimisation.opt_downstream.test_data:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data.parquet"
+  layer: model_input
+
+downstream.optimisation.opt_downstream.data_filtered_by_target:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/data_filtered_by_target.parquet"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.test_data_clusters_hist_baseline_recovery:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_clusters_hist_baseline_recovery.parquet"
+  layer: optimization
+
+downstream.optimisation.opt_downstream.test_data_clusters_hist_baseline_recovery_csv:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_clusters_hist_baseline_recovery.csv"
+  layer: optimization
+
+##################################################################
+#               OPT CIL RECOVERY REPORTING OUTPUTS
+##################################################################
+downstream.optimisation.opt_downstream.ore_cluster_profile_cfa:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.reporting}/opt_cil_recovery/ore_cluster_profile_cfa.csv"
+  save_args:
+    index: True
+  layer: optimization
+
+downstream.optimisation.opt_downstream.get_ore_cluster_box_plots_cfa:
+  type: matplotlib.MatplotlibWriter
+  filepath: "${base_dir}/${folders.reporting}/opt_cil_recovery/get_ore_cluster_box_plots_cfa.jpeg"
+  layer: optimization
+  save_args:
+    format: jpeg
+
+##################################################################
+#               COMBINED COUNTERFACTUALS
+##################################################################
+combined_cfa_results:
+  type: pandas.CSVDataSet
+  filepath: "${base_dir}/${folders.model_output}/cfa_upstream_and_downstream/combined_cfa_results.csv"
+  save_args:
+    index: True
+  layer: optimization

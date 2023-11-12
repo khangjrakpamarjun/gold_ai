@@ -1,0 +1,13 @@
+td:
+  type: optimus_core.kedro_utils.tag_dict_datasets.TagDictCSVLocalDataSet
+  filepath: data/10_dictionary/dictionary.csv
+  layer: raw
+
+user_input_form_conversion:
+  type: pandas.ExcelDataSet
+  filepath: data/main/11_reference/user_inputs.xlsx
+  layer: raw
+  load_args:
+    sheet_name: 'balls_addition_conversion'
+    skiprows: 0
+    index_col: 0

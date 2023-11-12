@@ -1,0 +1,4 @@
+df_merged_with_derived_features:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.features}/df_merged_with_derived_features.parquet"
+  layer: feature_engineering

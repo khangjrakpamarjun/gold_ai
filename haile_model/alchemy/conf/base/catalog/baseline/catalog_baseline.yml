@@ -1,0 +1,102 @@
+##################################################################
+#               UPSTREAM BASELINE OUTPUTS
+##################################################################
+upstream.baselining.baseline_tph.data_filtered_by_target:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.models}/baseline_tph/data_filtered_by_target.parquet"
+  layer: model_output
+
+upstream.baselining.baseline_tph.baseline_per_cluster:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.models}/baseline_tph/baseline_per_cluster.parquet"
+  layer: model_output
+
+upstream.baselining.baseline_tph.baseline_features_median:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.models}/baseline_tph/baseline_features_median.parquet"
+  layer: model_output
+
+upstream.baselining.baseline_tph.baseline_tph_model:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.models}/baseline_tph/baseline_tph_model.pkl"
+  layer: train_model
+
+##################################################################
+#               CIL RECOVERY BASELINE OUTPUTS
+##################################################################
+downstream.baselining.baseline_cil_recovery.data_filtered_by_target:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_output}/baseline_cil_recovery/data_filtered_by_target.parquet"
+  layer: model_output
+
+downstream.baselining.baseline_cil_recovery.train_data_upstream_cluster:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_output}/baseline_cil_recovery/train_data_upstream_cluster.parquet"
+  layer: model_output
+
+downstream.baselining.baseline_cil_recovery.best_operating_mode_per_cluster:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/baseline_cil_recovery/best_operating_mode_per_cluster.pkl"
+  layer: model_output
+
+downstream.baselining.baseline_cil_recovery.flc_trained_model:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.models}/baseline_cil_recovery/flc_trained_model.pkl"
+  layer: train_model
+
+downstream.baselining.baseline_cil_recovery.slc_trained_models:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.models}/baseline_cil_recovery/slc_trained_models.pkl"
+  layer: model_output
+
+downstream.baselining.baseline_cil_recovery.model_features_flc:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/baseline_cil_recovery/model_features_flc.pkl"
+  layer: model_output
+
+downstream.baselining.baseline_cil_recovery.model_features_slc_dict:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/baseline_cil_recovery/model_features_slc_dict.pkl"
+  layer: model_output
+
+downstream.baselining.baseline_cil_recovery.baseline_per_cluster_per_operating_mode:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/baseline_cil_recovery/baseline_per_cluster_per_operating_mode.pkl"
+  layer: model_output
+
+downstream.baselining.baseline_cil_recovery.median_values_for_tags:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.models}/baseline_cil_recovery/median_values_for_tags.pkl"
+  layer: model_output
+
+##################################################################
+#                BASELINE CIL RECOVERY REPORTING OUTPUTS
+##################################################################
+downstream.baselining.baseline_cil_recovery.ore_cluster_2d:
+  type: matplotlib.MatplotlibWriter
+  filepath: "${base_dir}/${folders.reporting}/baseline_cil_recovery/ore_cluster_2d.jpeg"
+  layer: train_model
+  save_args:
+    format: jpeg
+
+downstream.baselining.baseline_cil_recovery.ore_cluster_3d:
+  type: matplotlib.MatplotlibWriter
+  filepath: "${base_dir}/${folders.reporting}/baseline_cil_recovery/ore_cluster_3d.jpeg"
+  layer: train_model
+  save_args:
+    format: jpeg
+
+downstream.baselining.baseline_cil_recovery.get_ore_cluster_box_plots:
+  type: matplotlib.MatplotlibWriter
+  filepath: "${base_dir}/${folders.reporting}/baseline_cil_recovery/get_ore_cluster_box_plots.jpeg"
+  layer: train_model
+  save_args:
+    format: jpeg
+
+##################################################################
+#               BASELINE OUTPUTS
+##################################################################
+baseline_historic.baseline_historic_upstream_and_downstream:
+  type: pickle.PickleDataSet
+  filepath: "${base_dir}/${folders.model_output}/baseline_historic/baseline_historic_upstream_and_downstream.pkl"
+  layer: model_output

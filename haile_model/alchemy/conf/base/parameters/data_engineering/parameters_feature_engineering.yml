@@ -1,0 +1,475 @@
+feature_eng:
+  feature_factory:
+    # grinding
+    { "power_target": {
+      "dependencies": [ "grinding_300_ml_001_power", "300_ml_002_power" ],
+      "function": "feature_factory.pandas_sum",
+      "kwargs": { "skipna": False },
+
+    },
+      "sag_specific_power": {
+        "dependencies": [ "grinding_300_ml_001_power", "200_cv_001_weightometer" ],
+        "function": "feature_factory.pandas_divide",
+
+      },
+      "sag_water_to_tph_ratio": {
+        "dependencies": [ "grinding_300_ml_001_instrumentation_300_fic_0001_pv", "200_cv_001_weightometer" ],
+        "function": "feature_factory.pandas_divide",
+
+      },
+      "ore_bin_feeder_speed_ratio": {
+        "dependencies": [ "200_fe_001_speed", "200_fe_002_speed" ],
+        "function": "feature_factory.pandas_divide",
+
+      },
+      "crusher_sp": {
+        "dependencies": [ "100_cr_001_power", "150_cv_002_weightometer" ],
+        "function": "feature_factory.pandas_divide",
+
+      },
+      "loading_balls_to_sag_mill": {
+        "dependencies": [ "300_fe_001_level" ],
+        "function": loading_balls_to_sag,
+      },
+      "sag_mill_density": {
+        "dependencies": [ "200_cv_001_weightometer", "grinding_300_ml_001_instrumentation_300_fic_0001_pv" ],
+        "function": sag_mill_density,
+        "kwargs": { "alpha": 100 },
+      },
+
+      # recovery
+      "regrind_perc_solid": {
+        "dependencies": [ "regrind_420_th_002_5m_avg_discharge_density" ],
+        "function": filter_column,
+      },
+      "regrind_density_solids": {
+        "dependencies": [ "regrind_product_sulphide_sulphur" ],
+        "function": regrind_density_solids,
+        "kwargs": { "pyrite_sg": 5, "density_solids_factor": 3.2 },
+      },
+
+      "regrind_density": {
+        "dependencies": [ "regrind_perc_solid", "regrind_density_solids" ],
+        "function": regrind_density,
+        "kwargs": { "density_liquid_factor": 1 },
+      },
+
+      "regrind_mass_flow": {
+        "dependencies": [ "regrind_420_th_002_5m_avg_discharge_flow", "regrind_density" ],
+        "function": "feature_factory.pandas_prod",
+        "kwargs": { "skipna": False },
+      },
+      "regrind_mass_flow_ore": {
+        "dependencies": [ "regrind_mass_flow", "regrind_perc_solid" ],
+        "function": regrind_mass_flow_ore,
+      },
+      "rougher_mass_flow_ore": {
+        "dependencies": [ "200_cv_001_weightometer", "regrind_mass_flow_ore" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "final_tails_perc_solid": {
+        "dependencies": [ "tailings_600_th_001_5m_avg_discharge_density" ],
+        "function": filter_column,
+      },
+
+      "final_tails_density": {
+        "dependencies": [ "final_tails_perc_solid" ],
+        "function": final_tails_density,
+        "kwargs": { "density_liquid_factor": 1, density_solids_factor: 3.2 },
+      },
+
+      "final_tails_mass_flow": {
+        "dependencies": [ "tailings_600_th_001_5m_avg_discharge_flow", "final_tails_density" ],
+        "function": "feature_factory.pandas_prod",
+        "kwargs": { "skipna": False },
+      },
+
+      "final_tails_mass_flow_ore": {
+        "dependencies": [ "final_tails_mass_flow", "final_tails_perc_solid" ],
+        "function": final_tails_mass_flow_ore,
+      },
+
+      "weighted_gold_grade_regrind": {
+        "dependencies": [ "regrind_product_gold_grade", "regrind_mass_flow_ore", "200_cv_001_weightometer" ],
+        "function": weighted_grade_regrind,
+      },
+      "weighted_gold_grade_rougher": {
+        "dependencies": [ "rougher_tails_gold_grade", "rougher_mass_flow_ore", "200_cv_001_weightometer" ],
+        "function": weighted_grade_rougher,
+      },
+      "weighted_silver_grade_regrind": {
+        "dependencies": [ "regrind_product_silver_grade", "regrind_mass_flow_ore", "200_cv_001_weightometer" ],
+        "function": weighted_grade_regrind,
+      },
+      "weighted_silver_grade_rougher": {
+        "dependencies": [ "rougher_tails_silver_grade", "rougher_mass_flow_ore", "200_cv_001_weightometer" ],
+        "function": weighted_grade_rougher,
+      },
+      "head_sulphide": {
+        "dependencies": [ "regrind_product_sulphide_sulphur", "regrind_mass_flow_ore",
+                          "rougher_tails_sulphur_grade", "rougher_mass_flow_ore", "200_cv_001_weightometer" ],
+        "function": head_sulphide,
+      },
+      "head_gold_grade": {
+        "dependencies": [ "regrind_product_gold_grade", "regrind_mass_flow_ore",
+                          "rougher_tails_gold_grade", "rougher_mass_flow_ore", "200_cv_001_weightometer" ],
+        "function": head_grade,
+      },
+      "weighted_gold_grade_regrind_shifted": {
+        "dependencies": [ "weighted_gold_grade_regrind" ],
+        "function": weighted_grade_regrind_shifted,
+        "kwargs": { "regrind_retention_time": 5, num_data_points_in_shift: 24 },
+      },
+      "weighted_gold_grade_rougher_shifted": {
+        "dependencies": [ "weighted_gold_grade_rougher" ],
+        "function": weighted_grade_rougher_shifted,
+        "kwargs": { "rougher_retention_time": 2, num_data_points_in_shift: 24 },
+      },
+      "head_silver_grade": {
+        "dependencies": [ "regrind_product_silver_grade", "regrind_mass_flow_ore",
+                          "rougher_tails_silver_grade", "rougher_mass_flow_ore", "200_cv_001_weightometer" ],
+        "function": head_grade,
+      },
+      "weighted_silver_grade_regrind_shifted": {
+        "dependencies": [ "weighted_silver_grade_regrind" ],
+        "function": weighted_grade_regrind_shifted,
+        "kwargs": { "regrind_retention_time": 5, num_data_points_in_shift: 24 },
+      },
+      "weighted_silver_grade_rougher_shifted": {
+        "dependencies": [ "weighted_silver_grade_rougher" ],
+        "function": weighted_grade_rougher_shifted,
+        "kwargs": { "rougher_retention_time": 2, num_data_points_in_shift: 24 },
+      },
+      "head_sulphide_shifted": {
+        "dependencies": [ "head_sulphide" ],
+        "function": head_sulphide_shifted,
+        "kwargs": { "rougher_retention_time": 2, num_data_points_in_shift: 24 },
+      },
+      "total_gold_grade": {
+        "dependencies": [ "weighted_gold_grade_regrind_shifted", "weighted_gold_grade_rougher_shifted" ],
+        "function": "feature_factory.pandas_sum",
+        "kwargs": { "skipna": False },
+      },
+      "gold_recovery": {
+        "dependencies": [ "total_gold_grade", "final_tails_gold_grade" ],
+        "function": relative_diff,
+      },
+      "gold_recovery_previous_shift": {
+        "dependencies": [ "gold_recovery" ],
+        "function": recovery_previous_shift,
+        "kwargs": { "num_data_points_in_shift": 24 },
+      },
+      "total_silver_grade": {
+        "dependencies": [ "weighted_silver_grade_regrind_shifted", "weighted_silver_grade_rougher_shifted" ],
+        "function": "feature_factory.pandas_sum",
+        "kwargs": { "skipna": False },
+      },
+      "silver_recovery": {
+        "dependencies": [ "total_silver_grade", "final_tails_silver_grade" ],
+        "function": mean_value,
+      },
+      "silver_recovery_previous_shift": {
+        "dependencies": [ "silver_recovery" ],
+        "function": recovery_previous_shift,
+        "kwargs": { "num_data_points_in_shift": 24 },
+      },
+      "recovery": {
+        "dependencies": [ "gold_recovery", "gold_recovery_previous_shift" ],
+        "function": mean_value,
+      },
+      "silver_recovery_calculated": {
+        "dependencies": [ "silver_recovery", "gold_recovery_previous_shift" ],
+        "function": mean_value,
+      },
+      "flotation_recovery": {
+        "dependencies": [ "regrind_product_sulphide_sulphur", "regrind_mass_flow_ore",
+                          "head_sulphide", "200_cv_001_weightometer" ],
+        "function": flotation_recovery,
+      },
+      "flotation_recovery_gold": {
+        "dependencies": [ "regrind_product_gold_grade", "regrind_mass_flow_ore",
+                          "head_gold_grade", "200_cv_001_weightometer" ],
+        "function": flotation_recovery,
+      },
+      "flotation_recovery_silver": {
+        "dependencies": [ "regrind_product_silver_grade", "regrind_mass_flow_ore",
+                          "head_silver_grade", "200_cv_001_weightometer" ],
+        "function": flotation_recovery,
+      },
+      "mass_pull": {
+        "dependencies": [ "regrind_mass_flow_ore", "200_cv_001_weightometer" ],
+        "function": "feature_factory.pandas_divide",
+      },
+
+      "flotation_cell_air_diff_2_1": {
+        "dependencies": [ "400_fc_002_air_addition", "400_fc_001_air_addition" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_air_diff_3_2": {
+        "dependencies": [ "400_fc_003_air_addition", "400_fc_002_air_addition" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_air_diff_4_3": {
+        "dependencies": [ "400_fc_004_air_addition", "400_fc_003_air_addition" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_air_diff_4_1": {
+        "dependencies": [ "400_fc_004_air_addition", "400_fc_001_air_addition" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_air_mean": {
+        "dependencies": [ "400_fc_001_air_addition", "400_fc_002_air_addition", "400_fc_003_air_addition", "400_fc_004_air_addition" ],
+        "function": mean_value,
+      },
+
+      "flotation_cell_bubble_size_diff_2_1": {
+        "dependencies": [ "400_fc_002_bubble_top_size", "400_fc_001_bubble_top_size" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_bubble_size_diff_3_2": {
+        "dependencies": [ "400_fc_003_bubble_top_size", "400_fc_002_bubble_top_size" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_bubble_size_diff_4_3": {
+        "dependencies": [ "400_fc_004_bubble_top_size", "400_fc_003_bubble_top_size" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_bubble_size_diff_4_1": {
+        "dependencies": [ "400_fc_004_bubble_top_size", "400_fc_001_bubble_top_size" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_bubble_size_mean": {
+        "dependencies": [ "400_fc_001_bubble_top_size", "400_fc_002_bubble_top_size", "400_fc_003_bubble_top_size", "400_fc_004_bubble_top_size" ],
+        "function": mean_value,
+      },
+
+      "flotation_cell_froth_velocity_diff_2_1": {
+        "dependencies": [ "400_fc_002_froth_velocity", "400_fc_001_froth_velocity" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_froth_velocity_diff_3_2": {
+        "dependencies": [ "400_fc_003_froth_velocity", "400_fc_002_froth_velocity" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_froth_velocity_diff_4_3": {
+        "dependencies": [ "400_fc_004_froth_velocity", "400_fc_003_froth_velocity" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_froth_velocity_diff_4_1": {
+        "dependencies": [ "400_fc_004_froth_velocity", "400_fc_001_froth_velocity" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_froth_velocity_mean": {
+        "dependencies": [ "400_fc_001_froth_velocity", "400_fc_002_froth_velocity", "400_fc_003_froth_velocity", "400_fc_004_froth_velocity" ],
+        "function": mean_value,
+      },
+
+      "flotation_cell_froth_level_diff_4_2": {
+        "dependencies": [ "400_fc_004_froth_level", "400_fc_002_froth_level" ],
+        "function": "feature_factory.pandas_subtract",
+      },
+      "flotation_cell_froth_level_mean": {
+        "dependencies": [ "400_fc_002_froth_level", "400_fc_004_froth_level" ],
+        "function": mean_value,
+      },
+
+      "camera_fine_fraction_mean": {
+        "dependencies": [ "400_fc_001_froth_camera_fine_fraction",
+                          "400_fc_002_froth_camera_fine_fraction",
+                          "400_fc_003_froth_camera_fine_fraction",
+                          "400_fc_004_froth_camera_fine_fraction" ],
+        "function": mean_value,
+      },
+      "camera_medium_fraction_mean": {
+        "dependencies": [ "400_fc_001_froth_camera_medium_fraction",
+                          "400_fc_002_froth_camera_medium_fraction",
+                          "400_fc_003_froth_camera_medium_fraction",
+                          "400_fc_004_froth_camera_medium_fraction" ],
+        "function": mean_value,
+      },
+      "camera_large_fraction_mean": {
+        "dependencies": [ "400_fc_001_froth_camera_large_fraction",
+                          "400_fc_002_froth_camera_large_fraction",
+                          "400_fc_003_froth_camera_large_fraction",
+                          "400_fc_004_froth_camera_large_fraction" ],
+        "function": mean_value,
+      },
+      "air_addition_new_mean": {
+        "dependencies": [ "400_fic_0211_pv",
+                          "400_fic_0212_pv",
+                          "400_fic_0213_pv",
+                          "400_fic_0214_pv" ],
+        "function": mean_value,
+      },
+      "froth_color_mean": {
+        "dependencies": [ "400_fc_001_froth_camera_value",
+                          "400_fc_004_froth_camera_value",
+                          "400_fc_003_froth_camera_value",
+                          "400_fc_002_froth_camera_value" ],
+        "function": mean_value,
+      },
+      "froth_velocity_flash_mean": {
+        "dependencies": [ "300_fc_001_froth_camera_velocity_0_magnitude",
+                          "300_fc_001_froth_camera_velocity_1_magnitude",
+                          "300_fc_001_froth_camera_velocity_2_magnitude" ],
+        "function": mean_value,
+      },
+      "froth_velocity_cells_mean": {
+        "dependencies": [ "400_fc_001_froth_camera_velocity_0_magnitude",
+                          "400_fc_004_froth_camera_velocity_0_magnitude",
+                          "400_fc_003_froth_camera_velocity_0_magnitude",
+                          "400_fc_002_froth_camera_velocity_0_magnitude",
+                          "400_fc_001_froth_camera_velocity_1_magnitude",
+                          "400_fc_004_froth_camera_velocity_1_magnitude",
+                          "400_fc_003_froth_camera_velocity_1_magnitude",
+                          "400_fc_002_froth_camera_velocity_1_magnitude",
+                          "400_fc_001_froth_camera_velocity_2_magnitude",
+                          "400_fc_002_froth_camera_velocity_2_magnitude",
+                          "400_fc_004_froth_camera_velocity_2_magnitude",
+                          "400_fc_003_froth_camera_velocity_2_magnitude" ],
+        "function": mean_value,
+      },
+      "bubbles_direction_mean": {
+        "dependencies": [ "400_fc_001_froth_camera_x",
+                          "400_fc_002_froth_camera_x",
+                          "400_fc_003_froth_camera_x",
+                          "400_fc_004_froth_camera_x" ],
+        "function": mean_value,
+      },
+      "rougher_tails_sulphide_sulphur_rolled": {
+        "dependencies": [ "rougher_tails_sulphur_grade", "200_cv_001_weightometer" ],
+        "function": rougher_tails_sulphide_sulphur_rolled,
+        "kwargs": { "steps": 12, delay: 4 },
+      },
+      "mass_pull_prev": {
+        "dependencies": [ "mass_pull" ],
+        "function": mass_pull_prev,
+        "kwargs": { "lag_hours": 4 },
+      },
+
+      "200_cv_001_weightometer_v2": {
+        "dependencies": [ "200_cv_001_weightometer" ],
+        "function": filter_column,
+      },
+
+      "tonnes_since_reline": {
+        "dependencies": [ "200_cv_001_weightometer" ],
+        "function": tonnes_since_reline,
+        "kwargs": { "sag_reline_dates":
+                      [ '2020-02-04 02:00:00+00:00',
+                        '2020-06-16 02:00:00+00:00',
+                        '2020-09-16 02:00:00+00:00',
+                        '2021-03-25 02:00:00+00:00',
+                        '2021-11-16 02:00:00+00:00',
+                        '2022-02-01 02:00:00+00:00',
+                        '2022-06-20 02:00:00+00:00',
+                        '2023-01-28 02:00:00+00:00' ]
+        },
+      },
+      "450_tk_002_carbon_inventory_gms": {
+        "dependencies": [ "450_tk_002_carbon_inventory" ],
+        "function": units_conversion,
+        "kwargs": { "volume": 1548 },
+      },
+      "450_tk_003_carbon_inventory_gms": {
+        "dependencies": [ "450_tk_003_carbon_inventory" ],
+        "function": units_conversion,
+        "kwargs": { "volume": 1494 },
+      },
+      "450_tk_004_carbon_inventory_gms": {
+        "dependencies": [ "450_tk_004_carbon_inventory" ],
+        "function": units_conversion,
+        "kwargs": { "volume": 1441 },
+      },
+      "420_tk_005_carbon_inventory_gms": {
+        "dependencies": [ "420_tk_005_carbon_inventory" ],
+        "function": units_conversion,
+        "kwargs": { "volume": 1601 },
+      },
+      "450_tk_006_carbon_inventory_gms": {
+        "dependencies": [ "450_tk_006_carbon_inventory" ],
+        "function": units_conversion,
+        "kwargs": { "volume": 1334 },
+      },
+      "450_tk_007_carbon_inventory_gms": {
+        "dependencies": [ "450_tk_007_carbon_inventory" ],
+        "function": units_conversion,
+        "kwargs": { "volume": 1281 },
+      },
+      "450_tk_008_carbon_inventory_gms": {
+        "dependencies": [ "450_tk_008_carbon_inventory" ],
+        "function": units_conversion,
+        "kwargs": { "volume": 1227 },
+      },
+      "450_tk_005_carbon_inventory_gms": {
+        "dependencies": [ "450_tk_005_carbon_inventory" ],
+        "function": units_conversion,
+        "kwargs": { "volume": 1388 },
+      },
+      "800_ffic_1000_pv_split": {
+        "dependencies": ["800_ffic_1000_pv", "frother_controller_set_point", "200_cv_001_weightometer"],
+        "function": reagent_split,
+        "kwargs": {"coefficient": 0.89, "noise_reduction": 0.95, "time_conversion": 60}
+      },
+      "800_ffic_1001_pv_split": {
+        "dependencies": [ "800_ffic_1001_pv", "frother_controller_set_point", "200_cv_001_weightometer" ],
+        "function": reagent_split,
+        "kwargs": { "coefficient": 0.89, "noise_reduction": 0.95, "time_conversion": 60 }
+      },
+      "800_ffic_0801_pv_split": {
+        "dependencies": [ "800_ffic_0801_pv", "promoter_controller_set_point", "200_cv_001_weightometer" ],
+        "function": reagent_split,
+        "kwargs": { "coefficient": 1.165, "noise_reduction": 0.95, "time_conversion": 60}
+      },
+      "800_ffic_0800_pv_split": {
+        "dependencies": [ "800_ffic_0800_pv", "promoter_controller_set_point", "200_cv_001_weightometer" ],
+        "function": reagent_split,
+        "kwargs": { "coefficient": 1.165, "noise_reduction": 0.95, "time_conversion": 60 }
+      },
+      "800_ffic_0802_pv_split": {
+        "dependencies": [ "800_ffic_0802", "promoter_controller_set_point", "200_cv_001_weightometer" ],
+        "function": reagent_split,
+        "kwargs": { "coefficient": 1.165, "noise_reduction": 0.95, "time_conversion": 60 }
+      },
+      "800_fv_2103_flow_split": {
+        "dependencies": [ "800_fv_2103_flow", "xanthate_controller_set_point", "200_cv_001_weightometer" ],
+        "function": reagent_split,
+        "kwargs": { "coefficient": 0.12448, "noise_reduction": 0.95, "time_conversion": 60 }
+      },
+      "800_fv_2105_flow_split": {
+        "dependencies": [ "800_fv_2105_flow", "xanthate_controller_set_point", "200_cv_001_weightometer" ],
+        "function": reagent_split,
+        "kwargs": { "coefficient": 0.12448, "noise_reduction": 0.95, "time_conversion": 60 }
+      },
+      "800_fv_2104_flow_split": {
+        "dependencies": [ "800_fv_2104_flow", "xanthate_controller_set_point", "200_cv_001_weightometer" ],
+        "function": reagent_split,
+        "kwargs": { "coefficient": 0.12448, "noise_reduction": 0.95, "time_conversion": 60 }
+      },
+      "total_cynide_rate": {
+        "dependencies": [ "reagents_800_tk_002_800_tk_020_800_fv_2106_flow", "reagents_800_tk_002_800_tk_020_800_fv_2107_flow",
+                          "reagents_800_tk_002_800_tk_020_800_fv_2108_flow", "reagents_800_tk_002_800_tk_020_800_fv_2109_flow" ],
+        "function": "feature_factory.pandas_sum",
+        "kwargs": { "skipna": False },
+      },
+      "incremental_gold_produced": {
+        "dependencies": [
+          "head_gold_grade",
+          "gold_recovery",
+          "200_cv_001_weightometer",
+        ],
+        "function": "increment",
+        "kwargs": { "oz_to_g": 28.3495231 },
+      },
+      "incremental_silver_produced": {
+        "dependencies": [
+          "head_silver_grade",
+          "silver_recovery",
+          "200_cv_001_weightometer",
+        ],
+        "function": "increment",
+        "kwargs": { "oz_to_g": 28.3495231 },
+      },
+    }
+
+# TODO: move all hardcoded coefficients into a more appropriate location

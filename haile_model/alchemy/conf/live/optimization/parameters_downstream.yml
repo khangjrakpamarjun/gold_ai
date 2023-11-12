@@ -1,0 +1,76 @@
+downstream:
+  td_columns: &leaching_columns
+    target_column: recovery
+    feature_downstream_cluster: feature_downstream_cluster
+    feature_operating_modes: feature_operating_modes
+    tag_name_column: name
+    baseline: recovery_hist_baseline # Choose recovery_predicted or recovery_hist_baseline as baseline
+
+  datetime_columns: &datetime_columns
+    datetime_column: "${timestamp_column}"
+    pipeline_timezone: "${pipeline_timezone}" # see globals
+
+  aggregation: &downstream_aggregation
+    aggregation_method: agg_method # put aggregation_method as agg_method in tag dict
+    offset: 11h30min
+    resampling_freq: 12h
+    label: right
+    closed: right
+    notnull_minima: 0.7  # Min number of non-null values needed in the sample
+
+  model_input_filters:
+    leaching_circuit_filters: &leaching_circuit_filters
+      200_cv_001_weightometer: { min: 350 }
+      recovery: { min: 0.5, max: 1 } # filter recoveries greater than 0.7
+
+  ##############################################################################################
+  #                                 RECOVERY OPTIMISATION
+  ##############################################################################################
+  optimisation:
+    opt_downstream:
+      constants: &constants
+        oz_to_g: ${oz_to_g}
+
+      areas_to_optimize:
+        - Leaching
+
+      model_input:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *downstream_aggregation
+        cut_range:
+          <<: *leaching_circuit_filters
+        time_period:
+          period_method: ${run_period_method}
+          n_end_shifts: ${run_n_end_shifts}
+          start_date: ${run_start_date}
+          end_date: ${run_end_date}
+          #TODO Put other periods to remove here
+        remove_other_periods:
+
+      train_model:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        <<: *constants
+        min_throughput_cut_off_col: "200_cv_001_weightometer"
+        remove_na_ratio: 0.3
+        gold_recovery_next_shift: "gold_recovery_next_shift"
+        mass_pull: "mass_pull"
+        recovery: "recovery"
+        cluster_col_name: "cluster_kmeans"
+        operating_modes: "operating_modes"
+        timestamp: "${timestamp_column}"
+        min_throughput: 300
+        upper_quantile: 0.98
+        lower_quantile: 0.02
+        quantile_cut_off: 0.5
+        n_neighbors: 10  # no. of nearest neighbours used to calculate the optimized recovery
+        op_mode_lower_quantile: 0.25
+        op_mode_upper_quantile: 0.75
+        agg_method_of_operating_mode: "median()" # TODO: make the mode of aggregation of best operation mode dynamic
+
+      report:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        model_report_name: "opt_cil_recovery_cfa_report"

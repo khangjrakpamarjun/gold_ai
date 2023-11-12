@@ -1,0 +1,7 @@
+fe_tags:
+  type: alchemy.utils.io.custom_sql_timescale_pandas_dataset.TimeScaleDBSqlQueryDataSet
+  write_table_name: "fe_tags"
+
+fe_targets:
+  type: alchemy.utils.io.custom_sql_timescale_pandas_dataset.TimeScaleDBSqlQueryDataSet
+  write_table_name: "fe_targets"

@@ -1,0 +1,9 @@
+df_merged_with_features_outlier_clean:
+  type: kedro.extras.datasets.pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.primary}/df_merged_with_features_outlier_clean.parquet"
+  layer: post_processing
+
+min_max_report_postprocessing:
+  type: kedro.extras.datasets.pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.intermediate}/min_max_report_postprocessing.parquet"
+  layer: preprocessing

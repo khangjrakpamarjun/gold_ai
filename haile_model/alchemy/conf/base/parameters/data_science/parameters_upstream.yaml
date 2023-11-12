@@ -1,0 +1,465 @@
+upstream:
+  datetime_columns: &datetime_columns
+    datetime_column: "${timestamp_column}"
+    pipeline_timezone: "${pipeline_timezone}" # see globals
+
+  aggregation: &upstream_aggregation
+    aggregation_method: agg_method # Column name in dict
+    offset: 7h30min
+    resampling_freq: 4h
+    label: right
+    closed: right
+    notnull_minima: 0.7  # Min number of non-null values needed in the sample
+
+  model_input_filters:
+    throughput_filter: &tph_filters
+      200_cv_001_weightometer: { min: 350 }
+
+    grinding_circuit_filters: &grinding_circuit_filters
+      grinding_300_ml_001_power: { min: 1_000 }
+#    TODO max of filter could be 1.5, can be iterated in new model retraining
+    flotation_circuit_filters: &flotation_circuit_filters
+      rougher_tails_sulphur_grade: { min: 0.2, max: 1 }
+
+    mass_pull_circuit_filters: &mass_pull_circuit_filters
+      recovery: { min: 0.7, max: 1 }
+
+  ##############################################################################################
+  #                                 UPSTREAM MODELING
+  ##############################################################################################
+
+  modeling:
+    ##############################################################################################
+    #                                 SAG POWER MODEL
+    ##############################################################################################
+
+    sag_power:
+      td_columns: &sag_power_columns
+        target_column: grinding_300_ml_001_power
+        td_features_column: feature_sag_power
+        tag_name_column: name
+
+      model_input:
+        <<: *sag_power_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *upstream_aggregation
+        cut_range:
+          <<: *tph_filters
+          <<: *grinding_circuit_filters
+        time_period:
+          period_method: date
+          # when ´period_method: date': use start/end dates to select data
+          # when ´period_method: n_end_shifts´: use n_end_shifts to select n last shifts
+          start_date: "2022-07-01 00:00:00+00:00"  # '%Y-%m-%d'
+          end_date: "2023-07-01 00:00:00+00:00"  # '%Y-%m-%d'
+        split:
+          <<: *datetime_columns
+          # when `split_method: frac`: we divide WHOLE data into train(fract) - test (1-fract)
+          # when `split_method: date`: we divide WHOLE data at the `datetime_val`
+          split_method: date # can be stratified, frac, date
+          split_datetime: '2023-06-01 00:00:00+00:00' # required only when `type: date`
+
+      train_model:
+        <<: *sag_power_columns
+        #  Params for model initialization and training
+        factory_class_name: modeling.SklearnPipelineFactory
+
+        init:
+          estimator:
+            class_name: xgboost.sklearn.XGBRegressor
+            kwargs:
+              random_state: 123
+          transformers:
+            - class_name: sklearn.preprocessing.StandardScaler
+              kwargs: { }
+              name: standard_scaler
+              wrapper: preserve_columns
+
+        cv:
+          class: sklearn.model_selection.KFold
+          kwargs:
+            n_splits: 3
+
+        tune:
+          class_name: modeling.SklearnPipelineTuner
+          hyperparameters:
+            booster: "gbtree"
+            verbosity: 1
+            n_jobs: 1
+            seed: 1234
+            objective: "reg:squarederror"
+            refit: "neg_root_mean_squared_error"
+            n_iter: 100
+            num_of_cv: 5
+
+          tuner:
+            class_name: sklearn.model_selection.GridSearchCV
+            kwargs:
+              n_jobs: 1
+              refit: mae
+              verbose: True
+              param_grid:
+                estimator__n_estimators: [ 32, 64, 128 ]
+                estimator__max_depth: [ 3, 4, 6 ]
+                estimator__learning_rate: [ 0.01, 0.1, 0.2 ]
+                estimator__subsample: [ 0.3, 0.5, 0.8 ]
+                estimator__reg_alpha: [ 0, 0.1, 0.5, 1 ]
+                estimator__colsample_bytree: [0.6, 0.7]
+              scoring:
+                mae: neg_mean_absolute_error
+                rmse: neg_root_mean_squared_error
+                r2: r2
+
+      report:
+        <<: *sag_power_columns
+        <<: *datetime_columns
+        model_report_name: SAG Power Model Performance Report
+        # Column name for model predictions in the data
+        #    prediction_column: grinding_300_ml_001_power
+        # HTML report parameters for model performance report
+        performance:
+          render_path: "${base_dir}/${folders.reporting}/sag_power/sag_mill_power_model_report.html"
+          report_meta_data:
+            title: SAG Mill Power Model Performance Report
+        # HTML report parameters for train and test splitting report
+        split:
+          render_path: "${base_dir}/${folders.reporting}/sag_power/split_comparison_report.html"
+          report_meta_data:
+            title: Train/Test Split Comparisons
+
+    ##############################################################################################
+    #                                 ROUGHER SULPHIDE GRADE MODEL
+    ##############################################################################################
+
+    sulphide_grade:
+      td_columns: &sulphide_grade_columns
+        target_column: rougher_tails_sulphur_grade
+        td_features_column: feature_sulphide_grade
+        tag_name_column: name
+
+      model_input:
+        <<: *sulphide_grade_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *upstream_aggregation
+        cut_range:
+          <<: *tph_filters
+          <<: *flotation_circuit_filters
+        time_period:
+          period_method: date
+          start_date: "2023-02-01 00:00:00+00:00"  # '%Y-%m-%d'
+          end_date: "2023-08-01 00:00:00+00:00"  # '%Y-%m-%d'
+        split:
+          <<: *datetime_columns
+          # when `split_method: frac`: we divide WHOLE data into train(fract) - test (1-fract)
+          # when `split_method: date`: we divide WHOLE data at the `datetime_val`
+          split_method: date # can be stratified, frac, date
+          split_datetime: "2023-07-01 00:00:00+00:00" # required only when `type: date`
+
+      train_model:
+        <<: *sulphide_grade_columns
+        #  Params for model initialization and training
+        factory_class_name: modeling.SklearnPipelineFactory
+
+        init:
+          estimator:
+            class_name: xgboost.sklearn.XGBRegressor
+            kwargs:
+              random_state: 123
+          transformers:
+            - class_name: sklearn.preprocessing.StandardScaler
+              kwargs: { }
+              name: standard_scaler
+              wrapper: preserve_columns
+
+        cv:
+          class: sklearn.model_selection.KFold
+          kwargs:
+            n_splits: 3
+
+        tune:
+          class_name: modeling.SklearnPipelineTuner
+          hyperparameters:
+            booster: "gbtree"
+            verbosity: 1
+            n_jobs: 1
+            seed: 1234
+            objective: "reg:squarederror"
+            refit: "neg_root_mean_squared_error"
+            n_iter: 100
+            num_of_cv: 5
+
+          tuner:
+            class_name: sklearn.model_selection.GridSearchCV
+            kwargs:
+              n_jobs: 1
+              refit: mae
+              verbose: True
+              param_grid:
+                estimator__n_estimators: [ 32, 64, 128 ]
+                estimator__max_depth: [ 3, 4, 6 ]
+                estimator__learning_rate: [ 0.01, 0.1, 0.2 ]
+                estimator__subsample: [ 0.3, 0.5, 0.8 ]
+                estimator__reg_alpha: [ 0, 0.1, 0.5, 1 ]
+                estimator__colsample_bytree: [ 0.6, 0.7 ]
+              scoring:
+                mae: neg_mean_absolute_error
+                rmse: neg_root_mean_squared_error
+                r2: r2
+
+      report:
+        <<: *sulphide_grade_columns
+        <<: *datetime_columns
+        model_report_name: Flotation Circuit Recovery Model Performance Report
+        # Column name for model predictions in the data
+        #    prediction_column: grinding_300_ml_001_power
+        # HTML report parameters for model performance report
+        performance:
+          render_path: "${base_dir}/${folders.reporting}/sulphide_grade/sulphide_grade_model_report.html"
+          report_meta_data:
+            title: Flotation Circuit Recovery Model Performance Report
+        # HTML report parameters for train and test splitting report
+        split:
+          render_path: "${base_dir}/${folders.reporting}/sulphide_grade/split_comparison_report.html"
+          report_meta_data:
+            title: Train/Test Split Comparisons
+
+    ##############################################################################################
+    #                                 MASS PULL MODEL
+    ##############################################################################################
+
+    mass_pull:
+      td_columns: &mass_pull_columns
+        target_column: mass_pull
+        td_features_column: feature_mass_pull
+        tag_name_column: name
+
+      model_input:
+        <<: *mass_pull_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *upstream_aggregation
+        cut_range:
+          <<: *tph_filters
+          <<: *mass_pull_circuit_filters
+        time_period:
+          period_method: date
+          # when ´period_method: date': use start/end dates to select data
+          # when ´period_method: n_end_shifts´: use n_end_shifts to select n last shifts
+          start_date: "2022-08-01 00:00:00+00:00"  # '%Y-%m-%d'
+          end_date: "2023-07-01 00:00:00+00:00"  # '%Y-%m-%d'
+        split:
+          <<: *datetime_columns
+          # when `split_method: frac`: we divide WHOLE data into train(fract) - test (1-fract)
+          # when `split_method: date`: we divide WHOLE data at the `datetime_val`
+          split_method: date # can be stratified, frac, date
+          split_datetime: "2023-06-01 00:00:00+00:00" # required only when `type: date`
+
+      train_model:
+        <<: *mass_pull_columns
+        #  Params for model initialization and training
+        factory_class_name: modeling.SklearnPipelineFactory
+
+        init:
+          estimator:
+            class_name: xgboost.sklearn.XGBRegressor
+            kwargs:
+              random_state: 123
+          transformers:
+            - class_name: sklearn.preprocessing.StandardScaler
+              kwargs: { }
+              name: standard_scaler
+              wrapper: preserve_columns
+
+        cv:
+          class: sklearn.model_selection.KFold
+          kwargs:
+            n_splits: 3
+
+        tune:
+          class_name: modeling.SklearnPipelineTuner
+          hyperparameters:
+            booster: "gbtree"
+            verbosity: 1
+            n_jobs: 1
+            seed: 1234
+            objective: "reg:squarederror"
+            refit: "neg_root_mean_squared_error"
+            n_iter: 100
+            num_of_cv: 5
+
+          tuner:
+            class_name: sklearn.model_selection.GridSearchCV
+            kwargs:
+              n_jobs: 1
+              refit: mae
+              verbose: True
+              param_grid:
+                estimator__n_estimators: [ 32, 64, 128 ]
+                estimator__max_depth: [ 3, 4, 6 ]
+                estimator__learning_rate: [ 0.01, 0.1, 0.2 ]
+                estimator__subsample: [ 0.3, 0.5, 0.8 ]
+                estimator__reg_alpha: [ 0, 0.1, 0.5, 1 ]
+                estimator__colsample_bytree: [ 0.6, 0.7 ]
+              scoring:
+                mae: neg_mean_absolute_error
+                rmse: neg_root_mean_squared_error
+                r2: r2
+
+      report:
+        <<: *mass_pull_columns
+        <<: *datetime_columns
+        model_report_name: Mass Pull Model Performance Report
+        # Column name for model predictions in the data
+        #    prediction_column: grinding_300_ml_001_power
+        # HTML report parameters for model performance report
+        performance:
+          render_path: "${base_dir}/${folders.reporting}/mass_pull/mass_pull_model_report.html"
+          report_meta_data:
+            title: Mass Pull Model Performance Report
+        # HTML report parameters for train and test splitting report
+        split:
+          render_path: "${base_dir}/${folders.reporting}/mass_pull/split_comparison_report.html"
+          report_meta_data:
+            title: Train/Test Split Comparisons
+
+  ##############################################################################################
+  #                                 BASELINE TPH
+  ##############################################################################################
+  baselining:
+    baseline_tph:
+      td_columns: &baseline_tph_columns
+        target_column: grinding_300_ml_001_power
+        td_features_column: feature_baseline_tph
+        tag_name_column: name
+
+      model_input:
+        <<: *baseline_tph_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *upstream_aggregation
+        cut_range:
+          <<: *tph_filters
+          <<: *grinding_circuit_filters
+        time_period:
+          period_method: date
+          # when ´period_method: date': use start/end dates to select data
+          # when ´period_method: n_end_shifts´: use n_end_shifts to select n last shifts
+          start_date: "${baseline_start_date}"
+          end_date: "${baseline_end_date}"
+
+      train_params_tph:
+        <<: *baseline_tph_columns
+        throughput: "200_cv_001_weightometer"
+        n_init: 15
+        k_means_init: "k-means++"
+        max_iter: 500
+        random_state: 42
+        list_of_clusters: [ 4 ]
+        n_init_best: 10
+
+
+  ##############################################################################################
+  #                                 UPSTREAM OPTIMISATION
+  ##############################################################################################
+  optimisation:
+    opt_upstream:
+      td_columns:
+        <<: *sag_power_columns
+
+      model_input:
+        <<: *sag_power_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *upstream_aggregation
+        cut_range:
+          <<: *tph_filters
+          <<: *grinding_circuit_filters
+          <<: *flotation_circuit_filters
+        time_period:
+          period_method: "${opt_period_method}"
+          # when ´period_method: date': use start/end dates to select data
+          # when ´period_method: n_end_shifts´: use n_end_shifts to select n last shifts
+          start_date: "${opt_start_date}"
+          end_date: "${opt_end_date}"
+
+      areas_to_optimize:
+        - Flotation
+        - Grinding
+
+      bounds_update:
+        - "200_cv_001_weightometer"
+
+      target_tags:
+        - sag_power
+        - sulphide_grade
+        - mass_pull_penalty
+        - objective
+
+      obj_function:
+        weights: # Define weights for the combined objective function
+          sag_power: 0.5
+          sulphide_grade: 0.3
+
+      translation_layer:
+        400_fc_001_air_addition: "400_fc_001_air_addition"
+        400_fc_002_air_addition: "400_fc_002_air_addition"
+        400_fc_003_air_addition: "400_fc_003_air_addition"
+        400_fc_004_air_addition: "400_fc_004_air_addition"
+        flotation_cell_air_diff_2_1: "flotation_cell_air_diff_2_1"
+        flotation_cell_air_diff_4_1: "flotation_cell_air_diff_4_1"
+        flotation_cell_air_mean: "flotation_cell_air_mean"
+        400_fc_001_froth_velocity: "400_fc_001_froth_velocity"
+        400_fc_002_froth_velocity: "400_fc_002_froth_velocity"
+        400_fc_003_froth_velocity: "400_fc_003_froth_velocity"
+        400_fc_004_froth_velocity: "400_fc_004_froth_velocity"
+        flotation_cell_froth_velocity_diff_4_1: "flotation_cell_froth_velocity_diff_4_1"
+        flotation_cell_froth_velocity_diff_2_1: "flotation_cell_froth_velocity_diff_2_1"
+        flotation_cell_froth_velocity_mean: "flotation_cell_froth_velocity_mean"
+
+      translation_layer_output_tags:
+#      TODO once froth velocity, air addition needs to added as control tags, uncomment below 3 tags
+#          - 400_fc_002_air_addition
+#          - 400_fc_003_air_addition
+#          - 400_fc_004_air_addition
+#          - 400_fc_002_froth_velocity
+#          - 400_fc_003_froth_velocity
+#          - 400_fc_004_froth_velocity
+
+
+      control_tags_not_for_ui:
+        - flotation_cell_air_diff_2_1
+        - flotation_cell_air_diff_4_1
+        - flotation_cell_froth_level_diff_4_2
+        - flotation_cell_air_mean
+        - flotation_cell_froth_level_mean
+
+      # example kwargs for stopper. Different stoppers have different kwargs
+      stopper_class: optimizer.stoppers.NoImprovementStopper
+      stopper:
+        patience: 50
+        min_delta: 0.1
+        sense: maximize
+
+      # example kwargs for solver. Different solvers have different kwargs
+      solver_class: optimizer.solvers.DifferentialEvolutionSolver
+      solver:
+        sense: maximize
+        seed: 0
+        maxiter: 1000
+        mutation: [ 0.5, 1.0 ]
+        recombination: 0.7
+        strategy: best1bin
+
+      # path to domain generator that produces optimization domain
+      domain_generator: recommend.MinMaxDomainGenerator
+
+      # number of cores to use for optimization
+      n_jobs: 1
+
+      # sense of optimization
+      sense: maximize
+
+      # list of ui_states
+      ui_states: [ ]

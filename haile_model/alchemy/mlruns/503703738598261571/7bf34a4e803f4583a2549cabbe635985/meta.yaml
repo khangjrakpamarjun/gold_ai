@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Khangjrakpam%20Arjun/PycharmProjects/gold_oai/haile_model/alchemy/mlruns/503703738598261571/7bf34a4e803f4583a2549cabbe635985/artifacts
+end_time: 1698234991108
+entry_point_name: ''
+experiment_id: '503703738598261571'
+lifecycle_stage: active
+run_id: 7bf34a4e803f4583a2549cabbe635985
+run_name: live_full_pipe
+run_uuid: 7bf34a4e803f4583a2549cabbe635985
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1698234991030
+status: 4
+tags: []
+user_id: Khangjrakpam Arjun

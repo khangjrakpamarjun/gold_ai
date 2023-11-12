@@ -1,0 +1,19 @@
+ui:
+  # Add multiple kpis in the key below to list its value in predictions table for overall kpis display on
+  # recommendations page of UI
+  kpi_for_ui:
+    - 200_cv_001_weightometer
+    - sulphide_grade
+
+  kpi_last_calc_value_upstream_circuit:
+    - grinding_300_ml_001_power
+    - 200_cv_001_weightometer
+    - mass_pull
+    - rougher_tails_sulphur_grade
+
+  kpi_last_calc_value_full_circuit:
+    - grinding_300_ml_001_power
+    - 200_cv_001_weightometer
+    - mass_pull
+    - rougher_tails_sulphur_grade
+    - recovery

@@ -1,0 +1,76 @@
+[tool.poetry]
+name = "simonai"
+version = "0.14.33"
+description = ""
+authors = ["McKinsey & Company"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.11"
+seaborn = "^0.12.2"
+xgboost = "^1.7.5"
+kedro = {version = "0.18.5", extras = ["pandas"]}
+beautifulsoup4 = "4.11.1"
+geojson = "2.5.0"
+matplotlib = "3.6.3"
+multiprocess = "0.70.13"
+numpy = ">=1.14.0,<1.24"
+pandas = "1.5.3"
+plotly = "5.13.0"
+pymc = "^5.3.1"
+pyyaml = "6.0"
+openpyxl = ">=3.0.6,<4.0"
+scikit-learn = ">=1.0.2,<1.1.0"
+shap = "^0.41.0"
+tensorflow = "2.11.0"
+oai-feature-factory = {version = "^0.8.4", source = "oai"}
+oai-reporting = {version = "^0.22.1", source = "oai"}
+oai-preprocessing = {version = "^0.9.4", source = "oai"}
+oai-recommend = {version = "^0.14.1", source = "oai"}
+oai-optimus-core = {version = "^0.17.3", source = "oai"}
+oai-optimizer = {version = "^2.8.12", source = "oai"}
+oai-modeling = {version = "^0.15.5", source = "oai"}
+oai-kedro-utils = {version = "^0.10.4", source = "oai"}
+jupyterlab = ">=3.0,<3.6.0"
+psycopg2-binary = "^2.9.6"
+asyncpg = "^0.27.0"
+yellowbrick = "^1.5"
+
+[tool.pytest.ini_options]
+addopts = """
+--cov-report term-missing \
+--cov src/alchemy -ra"""
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.267"
+black = "^23.3.0"
+pyright = "^1.1.308"
+
+
+[[tool.poetry.source]]
+name = "oai"
+url = "https://gitlab.tools.simonai.draslovka.com/api/v4/projects/20/packages/pypi/simple"
+priority = "primary"
+
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.kedro]
+package_name = "alchemy"
+project_name = "alchemy"
+kedro_init_version = "0.18.5"
+
+[tool.isort]
+profile = "black"
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+exclude_lines = ["pragma: no cover", "raise NotImplementedError"]

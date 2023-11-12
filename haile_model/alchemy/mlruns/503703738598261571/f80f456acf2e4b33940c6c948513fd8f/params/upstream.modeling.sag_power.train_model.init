@@ -1,0 +1,1 @@
+{'estimator': {'class_name': 'xgboost.sklearn.XGBRegressor', 'kwargs': {'random_state': 123}}, 'transformers': [{'class_name': 'sklearn.preprocessing.StandardScaler', 'kwargs': {}, 'name': 'standard_scaler', 'wrapper': 'preserve_columns'}]}

@@ -1,0 +1,4 @@
+pi_data:
+  type: alchemy.utils.io.custom_sql_timescale_pandas_dataset.TimeScaleDBSqlQueryDataSet
+  sql: "select ${timestamp_column},${tag_column},${value_column} from data"
+  last_month: true

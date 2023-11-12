@@ -1,0 +1,57 @@
+# file /conf/base/globals
+# TODO: Change the name to respective folders
+base_dir: data
+folders:
+  ref: reference
+  raw: 01_raw
+  intermediate: 02_intermediate
+  primary: 03_primary
+  features: 04_feature
+  model_input: 05_model_input
+  models: 06_models
+  model_output: 07_model_output
+  reporting: 08_reporting
+  test: 12_testing
+
+# timezone set for the whole pipeline
+pipeline_timezone: 'UTC'
+timestamp_column: timestamp
+tag_column: tag
+value_column: value
+
+# unit conversion constants
+oz_to_g: 28.3495231
+
+sag_power:
+  target_column: target_sag_power
+  feature_column: feature_sag_power
+
+sulphide_grade:
+  target_column: target_sulphide_grade
+  feature_column: feature_sulphide_grade
+
+##############################################################################################
+#                                 COUNTERFACTUAL TIME PERIOD
+##############################################################################################
+# Period for counterfactual analysis (common for upstream and CIL optimization)
+opt_start_date: "2023-07-10"
+opt_end_date: "2023-08-01"
+opt_period_method: date
+
+##############################################################################################
+#                                 BASELINE TIME PERIOD
+##############################################################################################
+# Period for baseline calculation (common for upstream and CIL recovery)
+baseline_start_date: "2022-05-01 00:00:00+00:00"
+baseline_end_date: "2023-05-31 00:00:00+00:00"
+
+##############################################################################################
+#                                 LIVE RUN
+##############################################################################################
+# Below parameters are used in live recommendations for UI
+# For running specific date choose run_period_method as "date" and choose the right run_start_date
+# For getting recommendations on last record in latest data choose run_period_method as "n_end_shifts"
+run_start_date: "2023-08-27 23:30:00+00:00"  # used only when run_period_method = date
+run_end_date: ""  # timestamp like "2023-07-02 07:30:00+00:00" or keep empty to use the latest time in db
+run_period_method: n_end_shifts  # 'date' or 'n_end_shifts'
+run_n_end_shifts: 1

@@ -1,0 +1,126 @@
+upstream:
+  td_columns: &sag_power_columns
+    target_column: grinding_300_ml_001_power
+    td_features_column: feature_sag_power
+    tag_name_column: name
+
+  datetime_columns: &datetime_columns
+    datetime_column: "${timestamp_column}"
+    pipeline_timezone: "${pipeline_timezone}" # see globals
+
+  aggregation: &upstream_aggregation
+    aggregation_method: agg_method # Column name in dict
+    offset: 7h30min
+    resampling_freq: 4h
+    label: right
+    closed: right
+    notnull_minima: 0.7  # Min number of non-null values needed in the sample
+
+  model_input_filters:
+    throughput_filter: &tph_filters
+      200_cv_001_weightometer: { min: 350 }
+
+    grinding_circuit_filters: &grinding_circuit_filters
+      grinding_300_ml_001_power: { min: 1_000 }
+
+    flotation_circuit_filters: &flotation_circuit_filters
+      rougher_tails_sulphur_grade: { min: 0.2, max: 1 }
+
+  optimisation:
+    opt_upstream:
+      td_columns:
+        <<: *sag_power_columns
+
+      model_input:
+        <<: *sag_power_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *upstream_aggregation
+        cut_range:
+          <<: *tph_filters
+          <<: *grinding_circuit_filters
+          <<: *flotation_circuit_filters
+        time_period:
+          period_method: ${run_period_method}
+          n_end_shifts: ${run_n_end_shifts}
+          start_date: ${run_start_date}
+          end_date: ${run_end_date}
+
+      obj_function:
+        weights: # Define weights for the combined objective function
+          sag_power: 0.5
+          sulphide_grade: 0.3
+
+      areas_to_optimize:
+        - Flotation
+        - Grinding
+
+      bounds_update:
+        - "200_cv_001_weightometer"
+
+      target_tags:
+        - sag_power
+        - sulphide_grade
+        - mass_pull_penalty
+        - objective
+
+      translation_layer:
+        400_fc_001_air_addition: "400_fc_001_air_addition"
+        400_fc_002_air_addition: "400_fc_002_air_addition"
+        400_fc_003_air_addition: "400_fc_003_air_addition"
+        400_fc_004_air_addition: "400_fc_004_air_addition"
+        flotation_cell_air_diff_2_1: "flotation_cell_air_diff_2_1"
+        flotation_cell_air_diff_4_1: "flotation_cell_air_diff_4_1"
+        flotation_cell_air_mean: "flotation_cell_air_mean"
+        400_fc_001_froth_velocity: "400_fc_001_froth_velocity"
+        400_fc_002_froth_velocity: "400_fc_002_froth_velocity"
+        400_fc_003_froth_velocity: "400_fc_003_froth_velocity"
+        400_fc_004_froth_velocity: "400_fc_004_froth_velocity"
+        flotation_cell_froth_velocity_diff_4_1: "flotation_cell_froth_velocity_diff_4_1"
+        flotation_cell_froth_velocity_diff_2_1: "flotation_cell_froth_velocity_diff_2_1"
+        flotation_cell_froth_velocity_mean: "flotation_cell_froth_velocity_mean"
+
+      translation_layer_output_tags:
+  #      TODO once froth velocity, air addition needs to added as control tags, uncomment below 3 tags
+  #          - 400_fc_002_air_addition
+  #          - 400_fc_003_air_addition
+  #          - 400_fc_004_air_addition
+  #          - 400_fc_002_froth_velocity
+  #          - 400_fc_003_froth_velocity
+  #          - 400_fc_004_froth_velocity
+
+      control_tags_not_for_ui:
+        - flotation_cell_air_diff_2_1
+        - flotation_cell_air_diff_4_1
+        - flotation_cell_froth_level_diff_4_2
+        - flotation_cell_air_mean
+        - flotation_cell_froth_level_mean
+
+      # example kwargs for stopper. Different stoppers have different kwargs
+      stopper_class: optimizer.stoppers.NoImprovementStopper
+      stopper:
+        patience: 50
+        min_delta: 0.1
+        sense: maximize
+
+      # example kwargs for solver. Different solvers have different kwargs
+      solver_class: optimizer.solvers.DifferentialEvolutionSolver
+      solver:
+        sense: maximize
+        seed: 0
+        maxiter: 1000
+        mutation: [ 0.5, 1.0 ]
+        recombination: 0.7
+        strategy: best1bin
+
+      # path to domain generator that produces optimization domain
+      domain_generator: recommend.MinMaxDomainGenerator
+
+      # number of cores to use for optimization
+      n_jobs: 1
+
+      # sense of optimization
+      sense: maximize
+
+      # list of ui_states
+      ui_states: [ ]

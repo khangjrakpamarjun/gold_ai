@@ -1,0 +1,19 @@
+df_merged:
+  type: kedro.extras.datasets.pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.intermediate}/df_merged.parquet"
+  layer: preprocessing
+
+df_merged_clean:
+  type: kedro.extras.datasets.pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.intermediate}/df_merged_clean.parquet"
+  layer: preprocessing
+
+df_merged_outlier_clean:
+  type: kedro.extras.datasets.pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.intermediate}/df_merged_outlier_clean.parquet"
+  layer: preprocessing
+
+min_max_report_preprocessing:
+  type: kedro.extras.datasets.pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.intermediate}/min_max_report_preprocessing.parquet"
+  layer: preprocessing

@@ -1,0 +1,4 @@
+test_data:
+  type: kedro.extras.datasets.pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.test}/test_data.parquet"
+  layer: testing

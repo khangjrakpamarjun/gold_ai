@@ -1,0 +1,15 @@
+runs:
+  type: alchemy.utils.io.custom_sql_timescale_pandas_dataset.TimeScaleDBSqlQueryDataSet
+  write_table_name: "runs"
+
+recommendations:
+  type: alchemy.utils.io.custom_sql_timescale_pandas_dataset.TimeScaleDBSqlQueryDataSet
+  write_table_name: 'recommendations'
+
+predictions:
+  type: alchemy.utils.io.custom_sql_timescale_pandas_dataset.TimeScaleDBSqlQueryDataSet
+  write_table_name: "predictions"
+
+last_calculated_value:
+  type: alchemy.utils.io.custom_sql_timescale_pandas_dataset.TimeScaleDBSqlQueryDataSet
+  write_table_name: "last_calculated_value"

@@ -1,0 +1,157 @@
+[flake8]
+extend-ignore=E203
+allowed-domain-names=data,params
+exclude = venv,optimus_env,build
+max-arguments=12
+max-attributes=10
+max-cognitive-average=9
+max-imports=16
+max-line-complexity=20
+max-line-length=88
+max-local-variables=8
+max-methods=12
+max-module-members=11
+ignore =
+    D,      # Docstring related issues. Reason to ignore: we are currently unable to maintain and refactor legacy docstrings. TODO: enable this check and improve docstrings to be aligned with code linter
+    P102,   # Docstring related issues. Reason to ignore: we are currently unable to maintain and refactor legacy docstrings. TODO: enable this check and improve docstrings to be aligned with code linter
+    Q000,   # Double quotes found but single quotes preferred. Reason to ignore: we use double strings as a default string literals sign.
+    RST,    # Docstring related issues. Reason to ignore: we are currently unable to maintain and refactor legacy docstrings. TODO: enable this check and improve docstrings to be aligned with code linter
+    S301,   # Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue. Reason to ignore: we deserialize only trusted pickled objects. TODO: investigate this issue with security.
+    S403,   # Consider possible security implications associated with pickle module. Reason to ignore: we deserialize only trusted pickled objects. TODO: investigate this issue with security.
+    W503,   # line break before binary operator. Reason to ignore: conflicts with PEP8 https://peps.python.org/pep-0008/#should-a-line-break-before-or-after-a-binary-operator
+    WPS115, # Found upper-case constant in a class. Reason to ignore: PEP8 recommends to keep upper-level constants on module level. In this project we use class-level upper-case constants as well.
+    WPS120, # Found regular name with trailing underscore. Reason to ignore: sklearn does not follow this convention. In this project we modify, extend and inherit from sklearn base classes.
+    WPS226, # Found string literal over-use. Reason to ignore: string literals are used in kedro pipelines, some of the API parsing components.
+    WPS300, # Found local folder import. Reason to ignore: this is a style thing and we use relative imports to shorten import paths
+    WPS301, # Found dotted raw import. Reason to ignore: dotted raw imports are fine when code readability is not affected.
+    WPS305, # Found f string. Reason to ignore: the ease of use outweighs the disadvantages described
+    WPS326, # Found implicit string concatenation. Reason to ignore: we use implicit string concatenation for splitting logging messages between lines. Moreover, we forbid explicit string concatenation in favour of usage of `f`-strings.
+    WPS348, # Found a line that starts with a dot. Reason to ignore: stylish thing. We stuck to an opposite convention
+    WPS410, # Found wrong metadata variable: __version__. Reason to ignore: we assign package versions inside code explicitly using __version__ variable. This is approach is considered as a best practice.
+    WPS412, # Found `__init__.py` module with logic. Reason to ignore: we keep __version__ variable in __init__.py and this is considered as a best practice.
+    WPS433, # Found nested import. Reason to ignore: we handle optional dependencies for packages using the nested imports.
+    WPS453, # Found executable mismatch. Reason to ignore: 1) was raising false positive on Docker on a Mac M1 2) We got the error because the "file is executable but no shebang is present", and adding a shebang at the beginning of the file is incompatible with the copyright message.
+    WPS459, # Found comparison with float or complex number. Reason to ignore: we compare numbers not only to compare errors and those comparisons of floating points cannot be refactored in the proposed by the authors way.
+    WPS472, # Found unpacking used to get a single element from a collection. Reason to ignore: unpacking into a single element is a good way & only way to work with iterables, where indexing is not supported.
+    WPS508, # Found incorrect not with compare usage. Reason to ignore: this check does not consider chained comparison where operator not is essential.
+    WPS529, # Found implicit `.get()` dict usage. Reason to ignore: it looks like another look-before-you-leap and easier-to-ask-for-forgiveness-than-permission approaches. In this scenario we strive to be able to use both.
+    WPS602, # Found using `@staticmethod`. Reason to ignore: design decision, i.e. sometimes we use abstract staticmethods rather that asking user to provide callable object for initialization
+    WPS605, # Found method without arguments. Reason to ignore: design decision, i.e. sometimes we use abstract staticmethods rather that asking user to provide callable object for initialization
+    S311,   # Standard pseudo-random generators are not suitable for security/cryptographic purposes. Reason to ignore:  OptimusAI's does not use random generators for cryptographic purposes. Triggered by random.choice.
+    WPS215, # Too many base classes. Reason to ignore: we use API definitions that use protocols that require a lot of base classes
+    E501,
+
+per-file-ignores =
+    # Standard set of ignores for files in api/types
+    # This folder should only import from the code to expose the types
+    # F401   Module imported but unused
+    # WPS235 Found too many imported names from a module
+    # WPS436 Forbid importing protected modules
+    */api/types/*.py:F401,WPS235,WPS436
+
+    # Standard set of ignores for `__init__.py`
+    # F401   Module imported but unused
+    # F403   Unable to detect undefined names
+    # WPS235 Found too many imported names from a module
+    # WPS347 Found vague import that may cause confusion: *
+    # WPS436 Forbid importing protected modules # This should be definitely ignored in the init files and enforced everywhere else
+    __init__.py:F401,F403,WPS235,WPS347,WPS436
+    
+    # Standard set of ignores for setting files.
+    # D103   Missing docstring in public function
+    # D401   First line should be in imperative mood
+    # DAR101 Missing parameter(s) in Docstring
+    # DAR201 Missing "Returns" in Docstring: - return
+    # DAR301 Missing "Yields" in Docstring
+    # E800   Found commented out code
+    # N806   Variable XX in function should be lowercase
+    # S101   Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+    # S105   Possible hardcoded password
+    # WPS110 Found wrong variable name: value
+    # WPS111 flake8: Found too short name
+    # WPS116 Found consecutive underscores name
+    # WPS118 Found too long name
+    # WPS201 Found module with too many imports
+    # WPS202 Found too many module members
+    # WPS210 Found too many local variables
+    # WPS211 Found too many arguments
+    # WPS213 Found too many expressions
+    # WPS214 Found too many methods
+    # WPS217 Found too many await expressions
+    # WPS218 Found to many assert statements
+    # WPS221 Found line with high Jones Complexity
+    # WPS235 Found too many imported names from a module
+    # WPS237 Found a too complex `f` string
+    # WPS331 Found local variable that are only used in `return` statements
+    # WPS358 Found a float zero (0.0)
+    # WPS420 Found wrong keyword
+    # WPS421 Found wrong function call: dir
+    # WPS428 Found statement that has no effect
+    # WPS431 Found nested class
+    # WPS432 Found magic number
+    # WPS436 Found protected module import
+    # WPS437 Found protected attribute usage
+    # WPS441 Found control variable used after block
+    # WPS442 Found outer scope names shadowing (for fixtures)
+    # WPS462 Wrong multiline string usage
+    # WPS432 Forbid magic numbers 
+    # WPS450 Found protected object import
+    # E800 Commented code is necessary for debugging
+    */settings.py:D103,WPS442,S101,WPS218,WPS441,WPS217,D401,DAR201,
+           WPS331,DAR101,WPS214,DAR301,WPS437,S105,WPS116,
+           WPS111,WPS431,N806,WPS204,WPS211,WPS210,WPS110,WPS118,
+           WPS421,WPS202,WPS432,WPS235,WPS358,WPS462,WPS221,
+           WPS201,WPS428,E800,WPS213,WPS420,WPS237,WPS436,WPS432,WPS450,
+           WPS306,WPS407,F541,F401,E402,WPS231,WPS229,B007,WPS434,S608,
+           E266,E712,WPS454,WPS518,WPS320,WPS337,WPS238,WPS227,WPS114,
+           WPS336,WPS504,WPS360,S307,C812,C815,C408
+
+
+    # Standard set of ignores for pipeline files.
+    # D103   Missing docstring in public function
+    # D401   First line should be in imperative mood
+    # DAR101 Missing parameter(s) in Docstring
+    # DAR201 Missing "Returns" in Docstring: - return
+    # DAR301 Missing "Yields" in Docstring
+    # E800   Found commented out code
+    # N806   Variable XX in function should be lowercase
+    # S101   Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+    # S105   Possible hardcoded password
+    # WPS110 Found wrong variable name: value
+    # WPS111 flake8: Found too short name
+    # WPS116 Found consecutive underscores name
+    # WPS118 Found too long name
+    # WPS201 Found module with too many imports
+    # WPS202 Found too many module members
+    # WPS210 Found too many local variables
+    # WPS211 Found too many arguments
+    # WPS213 Found too many expressions
+    # WPS214 Found too many methods
+    # WPS217 Found too many await expressions
+    # WPS218 Found to many assert statements
+    # WPS221 Found line with high Jones Complexity
+    # WPS235 Found too many imported names from a module
+    # WPS237 Found a too complex `f` string
+    # WPS331 Found local variable that are only used in `return` statements
+    # WPS358 Found a float zero (0.0)
+    # WPS420 Found wrong keyword
+    # WPS421 Found wrong function call: dir
+    # WPS428 Found statement that has no effect
+    # WPS431 Found nested class
+    # WPS432 Found magic number
+    # WPS436 Found protected module import
+    # WPS437 Found protected attribute usage
+    # WPS441 Found control variable used after block
+    # WPS442 Found outer scope names shadowing (for fixtures)
+    # WPS462 Wrong multiline string usage
+    # WPS432 Forbid magic numbers 
+    # WPS450 Found protected object import
+    # E800 Commented code is necessary for debugging
+    */pipelines/*:D103,WPS442,S101,WPS218,WPS441,WPS217,D401,DAR201,
+           WPS331,DAR101,WPS214,DAR301,WPS437,S105,WPS116,
+           WPS111,WPS431,N806,WPS204,WPS211,WPS210,WPS110,WPS118,
+           WPS421,WPS202,WPS432,WPS235,WPS358,WPS462,WPS221,
+           WPS201,WPS428,E800,WPS213,WPS420,WPS237,WPS436,WPS432,WPS450,
+           WPS306,WPS407,F541,F401,E402,WPS231,WPS229,B007,WPS434,S608,
+           E266,E712,WPS454,WPS518,WPS320,WPS337,WPS238,WPS227,WPS114,
+           WPS336,WPS504,WPS360,S307,C812,C815,C408

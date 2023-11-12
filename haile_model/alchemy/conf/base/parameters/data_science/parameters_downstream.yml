@@ -1,0 +1,164 @@
+downstream:
+  td_columns: &leaching_columns
+    target_column: recovery
+    feature_downstream_cluster : feature_downstream_cluster
+    feature_operating_modes : feature_operating_modes
+    tag_name_column: name
+    baseline: recovery_hist_baseline # Choose recovery_predicted or recovery_hist_baseline as baseline
+
+  datetime_columns: &datetime_columns
+    datetime_column: "${timestamp_column}"
+    pipeline_timezone: "${pipeline_timezone}" # see globals
+
+  aggregation: &downstream_aggregation
+    aggregation_method: agg_method # put aggregation_method as agg_method in tag dict
+    offset: 11h30min
+    resampling_freq: 12h
+    label: right
+    closed: right
+    notnull_minima: 0.7  # Min number of non-null values needed in the sample
+
+  model_input_filters:
+    leaching_circuit_filters: &leaching_circuit_filters
+      200_cv_001_weightometer: { min: 350 }
+      recovery: { min: 0.7, max: 1 } # filter recoveries greater than 0.7
+
+  ##############################################################################################
+  #                                 DOWNSTREAM MODELING
+  ##############################################################################################
+
+  modeling:
+    cil_recovery:
+      model_input:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *downstream_aggregation
+        cut_range:
+          <<: *leaching_circuit_filters
+        time_period:
+          period_method: date
+          # when ´period_method: date': use start/end dates to select data
+          # when ´period_method: n_end_shifts´: use n_end_shifts to select n last shifts
+          start_date: "2022-02-01 00:00:00+00:00"  # '%Y-%m-%d'
+          end_date: "2023-08-01 00:00:00+00:00"  # '%Y-%m-%d'
+        split:
+          <<: *datetime_columns
+          # when `split_method: frac`: we divide WHOLE data into train(fract) - test (1-fract)
+          # when `split_method: date`: we divide WHOLE data at the `datetime_val`
+          split_method: date # can be stratified, frac, date
+          split_datetime: "2023-07-01 00:00:00+00:00" # required only when `type: date`
+        # TODO: Put other periods to remove in train data here . e.g. plant shutdown/ maintenance period which we do not
+        # want to include for training purpose
+        remove_other_periods:
+
+      train_model:
+        <<: *leaching_columns
+        remove_na_ratio: 0.3
+        gold_recovery_next_shift: "gold_recovery_next_shift"
+        mass_pull: "mass_pull"
+        recovery: "recovery"
+        cluster_col_name : "cluster_kmeans"
+        operating_modes: "operating_modes"
+        agg_method_of_operating_mode : "median()" # TODO: make the mode of aggregation of best operation mode dynamic
+        train_params:
+          n_init: 15
+          k_means_init: "k-means++" # algo implemented is "greedy k-means++”. speeds up convergence
+          max_iter: 500
+          random_state: 42
+          list_of_clusters: [3, 4, 5, 6]
+          n_init_best: 10
+
+      report:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        model_report_name: "cil_recovery_train_report"
+
+  ##############################################################################################
+  #                                 BASELINE RECOVERY
+  ##############################################################################################
+  baselining:
+    baseline_cil_recovery:
+      model_input:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *downstream_aggregation
+        cut_range:
+          <<: *leaching_circuit_filters
+        time_period:
+          period_method: date
+          # when ´period_method: date': use start/end dates to select data
+          # when ´period_method: n_end_shifts´: use n_end_shifts to select n last shifts'
+          start_date: "${baseline_start_date}"
+          end_date: "${baseline_end_date}"
+
+      train_model:
+        <<: *leaching_columns
+        remove_na_ratio: 0.4
+        gold_recovery_next_shift: "gold_recovery_next_shift"
+        mass_pull: "mass_pull"
+        recovery: "recovery"
+        cluster_col_name: "cluster_kmeans"
+        operating_modes: "operating_modes"
+        agg_method_of_operating_mode: "median()" # TODO: make the mode of aggregation of the best operation mode dynamic
+        train_params:
+          n_init: 15
+          k_means_init: "k-means++" # algo implemented is "greedy k-means++”. speeds up convergence
+          max_iter: 500
+          random_state: 42
+          list_of_clusters: [ 3 ] # control the no. of clusters for both levels here
+          n_init_best: 10
+
+      report:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        model_report_name: "baseline_cil_recovery_train_report"
+
+  ##############################################################################################
+  #                                 RECOVERY OPTIMISATION
+  ##############################################################################################
+  optimisation:
+    opt_downstream:
+      constants: &constants
+        oz_to_g: ${oz_to_g}
+
+      areas_to_optimize:
+        - Leaching
+
+      model_input:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        aggregation:
+          <<: *downstream_aggregation
+        cut_range:
+          <<: *leaching_circuit_filters
+        time_period:
+          period_method: "${opt_period_method}"
+          start_date: "${opt_start_date}"
+          end_date: "${opt_end_date}"
+        # TODO: Put other periods to remove in train data here . e.g. plant shutdown/ maintenance period which we do not
+        # want to include for training purpose
+        remove_other_periods:
+
+      train_model:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        <<: *constants
+        remove_na_ratio: 0.3
+        gold_recovery_next_shift: "gold_recovery_next_shift"
+        mass_pull: "mass_pull"
+        recovery: "recovery"
+        cluster_col_name: "cluster_kmeans"
+        operating_modes: "operating_modes"
+        timestamp: "${timestamp_column}"
+        quantile_cut_off: 0.5
+        n_neighbors: 10  # no. of nearest neighbours used to calculate the optimized recovery
+        op_mode_lower_quantile: 0.25
+        op_mode_upper_quantile: 0.75
+        agg_method_of_operating_mode: "median()" # TODO: make the mode of aggregation of best operation mode dynamic
+
+      report:
+        <<: *leaching_columns
+        <<: *datetime_columns
+        model_report_name: "opt_cil_recovery_cfa_report"

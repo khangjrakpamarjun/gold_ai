@@ -1,0 +1,80 @@
+stages:
+  - linting
+  # - test-deps
+  # - test
+  - build
+
+check_formatting:
+  image: python:3.9.16
+  retry: 2
+  stage: linting
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+  script:
+    - pip install black==23.3.0
+    - black alchemy/src/. --line-length 88  --check
+
+## Needs code reformatting before enabling, else will fail
+# flake8:
+#   image: python:3.9.16
+#   stage: linting
+#   script:
+#     - pip install 'flake8>=3.7.9, <5.0'
+#     - flake8 alchemy/src/. --count
+
+check_imports:
+  image: python:3.9.16
+  retry: 2
+  stage: linting
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+  script:
+    - pip install isort~=5.0
+    - isort alchemy/src/. --check
+
+#get_prod_artifacts:
+#  image: registry.tools.simonai.draslovka.com/tenants/oceana/haile_model/model:$CURRENT_MODEL_VERSION
+#  retry: 2
+#  stage: test
+#  rules:
+#    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH && $CI_COMMIT_MESSAGE !~ /-modelupdate/
+#  script:
+#    - mkdir artifact_data
+#    - cp -a /data/* artifact_data/
+#  artifacts:
+#    paths:
+#      - artifact_data/*
+#
+#run_kedro_test:
+#  image: python:3.9.16
+#  retry: 2
+#  stage: test
+#  needs:
+#    - get_prod_artifacts
+#  rules:
+#    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH && $CI_COMMIT_MESSAGE !~ /-modelupdate/
+#  variables:
+#    POETRY_HTTP_BASIC_OAI_PASSWORD: $CI_JOB_TOKEN
+#    POETRY_HTTP_BASIC_OAI_USERNAME: gitlab-ci-token
+#  script:
+#    - cp -a alchemy/. ./
+#    - mkdir -p /data/main
+#    - cp -r artifact_data/* /data/main/
+#    - pip install poetry
+#    - poetry config virtualenvs.create false
+#    - poetry install --no-root
+#    - kedro run --pipeline=test_pipe
+
+build_tagged_image:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG && ($CI_COMMIT_TAG != "base")
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(echo -n ${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD} | base64)\"}}}" > /kaniko/.docker/config.json
+    - |
+      executor \
+        --build-arg CI_COMMIT_TAG=$CI_COMMIT_TAG \
+        --build-arg CI_JOB_TOKEN=$CI_JOB_TOKEN \
+        --context $CI_PROJECT_DIR \
+        --dockerfile $CI_PROJECT_DIR/Dockerfile \
+        --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG

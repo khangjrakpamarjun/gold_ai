@@ -1,0 +1,67 @@
+##################################################################
+#               SAG POWER MODEL INPUTS
+##################################################################
+upstream.modeling.sag_power.df_aggregated:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.primary}/sag_power_data_aggregated.parquet"
+  layer: post_processing
+
+upstream.modeling.train_data:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_input}/sag_power/train_data.parquet"
+  layer: model_input
+
+upstream.modeling.test_data:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_input}/sag_power/test_data.parquet"
+  layer: model_input
+
+##################################################################
+#               SULPHIDE GRADE MODEL INPUTS
+##################################################################
+upstream.modeling.sulphide_grade.df_aggregated:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.primary}/sulphide_grade_data_aggregated.parquet"
+  layer: post_processing
+
+upstream.modeling.sulphide_grade.train_data:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_input}/sulphide_grade/train_data.parquet"
+  layer: model_input
+
+upstream.modeling.sulphide_grade.test_data:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_input}/sulphide_grade/test_data.parquet"
+  layer: model_input
+
+##################################################################
+#               MASS PULL MODEL INPUTS
+##################################################################
+upstream.modeling.mass_pull.df_aggregated:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.primary}/mass_pull_data_aggregated.parquet"
+  layer: post_processing
+
+upstream.modeling.mass_pull.train_data:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_input}/mass_pull/train_data.parquet"
+  layer: model_input
+
+upstream.modeling.mass_pull.test_data:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_input}/mass_pull/test_data.parquet"
+  layer: model_input
+
+##################################################################
+#               CIL RECOVERY MODEL INPUTS
+##################################################################
+
+downstream.modeling.cil_recovery.df_aggregated:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_input}/cil_recovery/cil_recovery_data_aggregated.parquet"
+  layer: model_input
+
+downstream.modeling.cil_recovery.train_data:
+  type: pandas.ParquetDataSet
+  filepath: "${base_dir}/${folders.model_input}/cil_recovery/train_data.parquet"
+  layer: model_input
