@@ -26,7 +26,7 @@ def get_2d_ore_cluster_plot(
     first_level_cluster_trained_model: pickle,
 ):
     """
-    Generates the 2D ore cluster plot for train data for analysis
+    Generates the 2D ore cluster plot for train data for analysis purpose
     Args:
         params: dictionary containing parameters
         td: tag dictionary
