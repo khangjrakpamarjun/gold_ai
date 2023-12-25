@@ -7,6 +7,7 @@ __pycache__
 /alchemy/conf/**/*credentials*
 # ignore everything in the following folders
 /alchemy/data/**
+/alchemy/mlruns/**
 !/alchemy/data/10_dictionary/dictionary.csv
 !/alchemy/data/11_reference/user_inputs.xlsx
 /alchemy/logs/**
