@@ -26,7 +26,7 @@ def get_2d_ore_cluster_plot(
     first_level_cluster_trained_model: pickle,
 ):
     """
-    Generates the 2D ore cluster plot for train data for analysis purpose
+    Generates the 2D ore cluster plot for train data for analysis purpose. Testing
     Args:
         params: dictionary containing parameters
         td: tag dictionary
@@ -160,9 +160,9 @@ def _get_ore_cluster_profile_cfa(data: pd.DataFrame) -> pd.DataFrame:
     Returns the cluster profile table for all tags for the data used in cfa
     with summary statistics for all tags
     """
-    cluster = data["ore_cluster_predicted"].unique().tolist()
+    cluster1 = data["ore_cluster_predicted"].unique().tolist()
     combine_df = pd.DataFrame()
-    for i in cluster:
+    for i in cluster1:
         cls = i
         cluster_wise = data[data["ore_cluster_predicted"] == i]
         first_df = cluster_wise.describe()
