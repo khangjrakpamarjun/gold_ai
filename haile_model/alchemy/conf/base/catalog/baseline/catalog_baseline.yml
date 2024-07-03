@@ -2,17 +2,17 @@
 #               UPSTREAM BASELINE OUTPUTS
 ##################################################################
 upstream.baselining.baseline_tph.data_filtered_by_target:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.models}/baseline_tph/data_filtered_by_target.parquet"
   layer: model_output
 
 upstream.baselining.baseline_tph.baseline_per_cluster:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.models}/baseline_tph/baseline_per_cluster.parquet"
   layer: model_output
 
 upstream.baselining.baseline_tph.baseline_features_median:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.models}/baseline_tph/baseline_features_median.parquet"
   layer: model_output
 
@@ -25,12 +25,12 @@ upstream.baselining.baseline_tph.baseline_tph_model:
 #               CIL RECOVERY BASELINE OUTPUTS
 ##################################################################
 downstream.baselining.baseline_cil_recovery.data_filtered_by_target:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.model_output}/baseline_cil_recovery/data_filtered_by_target.parquet"
   layer: model_output
 
 downstream.baselining.baseline_cil_recovery.train_data_upstream_cluster:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.model_output}/baseline_cil_recovery/train_data_upstream_cluster.parquet"
   layer: model_output
 

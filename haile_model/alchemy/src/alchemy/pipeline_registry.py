@@ -65,7 +65,7 @@ def register_pipelines() -> Dict[str, Pipeline]:
     )
 
     pipeline_dict = {
-        "__default__": cf_pipe,
+        "__default__": de_pipe,
         "de_pipe": de_pipe,
         "ds_pipe": ds_pipe,
         "baseline_pipe": baseline_pipe,  # baseline analysis for tph

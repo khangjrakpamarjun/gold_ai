@@ -12,7 +12,7 @@ upstream.optimisation.opt_upstream.bounds_dict:
   layer: optimization
 
 upstream.optimisation.opt_upstream.data_filtered_by_target:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.model_output}/opt_upstream/data_filtered_by_target.parquet"
   layer: optimization
 
@@ -85,7 +85,7 @@ downstream.optimisation.opt_downstream.predictions:
   layer: optimization
 
 downstream.optimisation.opt_downstream.test_data_with_ore_clusters:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_with_ore_clusters.parquet"
   layer: optimization
 
@@ -110,27 +110,27 @@ downstream.optimisation.opt_downstream.test_data_without_nulls:
   layer: model_input
 
 downstream.optimisation.opt_downstream.test_data_with_ore_clusters_with_om:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_with_ore_clusters_with_om.parquet"
   layer: model_input
 
 downstream.optimisation.opt_downstream.df_aggregated:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/df_aggregated.parquet"
   layer: train_model
 
 downstream.optimisation.opt_downstream.test_data:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data.parquet"
   layer: model_input
 
 downstream.optimisation.opt_downstream.data_filtered_by_target:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/data_filtered_by_target.parquet"
   layer: optimization
 
 downstream.optimisation.opt_downstream.test_data_clusters_hist_baseline_recovery:
-  type: pandas.ParquetDataSet
+  type: kedro.extras.datasets.pandas.ParquetDataSet
   filepath: "${base_dir}/${folders.model_output}/opt_cil_recovery/test_data_clusters_hist_baseline_recovery.parquet"
   layer: optimization
 
